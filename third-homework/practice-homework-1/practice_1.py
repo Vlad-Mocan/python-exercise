@@ -32,7 +32,7 @@ def sum_of_numbers(items):
 
 
 def is_in_list(items, number):
-    return number in items and isinstance(number, numbers.Number)
+    return isinstance(number, numbers.Number) and number in items
 
 
 print(is_even(5))
