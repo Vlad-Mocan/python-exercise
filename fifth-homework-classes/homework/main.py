@@ -55,7 +55,7 @@ def main():
         print(user_books_model.has_read_book(bob_id, foundation_id))
         print(user_books_model.has_read_book(bob_id, hobbit_id))
 
-        print(user_books_model.remove_book(bob_id, foundation_id))
+        user_books_model.remove_book(bob_id, foundation_id)
 
 
 if __name__ == "__main__":
