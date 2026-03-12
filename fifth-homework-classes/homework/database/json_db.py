@@ -48,9 +48,7 @@ def add_json_record(filename, record):
 
 def view_json_records(filename):
     data = load_json_file(filename)
-    print("Headers:", data["schema"])
-    for record in data["records"]:
-        print(list(record.values()))
+    return data["records"]
 
 
 def search_json_record(filename, field, value):

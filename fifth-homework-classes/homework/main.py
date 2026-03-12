@@ -1,62 +1,60 @@
+from model.impl.task import Task
 import os
-from model.impl.user import User
-from model.impl.book import Book
-from model.impl.user_book import UserBook
+from fastapi import FastAPI
+from user_books import user_books
+from pydantic import BaseModel
+from typing import Optional
+
+app = FastAPI()
+
+user_books()
+task_db = Task("tasks.csv", ["title", "description", "completed"])
+if not os.path.exists("tasks.csv"):
+    task_db.initialize_db()
 
 
-def main():
-    user_model = User("user.csv", ["name", "email"])
-    book_model = Book("book.json", ["title", "author", "year"])
-    user_books_model = UserBook(user_model, book_model)
-
-    users_to_add = [
-        ("Alice Smith", "alice@example.com"),
-        ("Bob Jones", "bob.jones@techmail.org"),
-        ("Charlie Brown", "charlie@peanuts.com"),
-    ]
-
-    books_to_add = [
-        ("The Hobbit", "J.R.R. Tolkien", 1937),
-        ("Foundation", "Isaac Asimov", 1951),
-        ("Brave New World", "Aldous Huxley", 1932),
-        ("The Great Gatsby", "F. Scott Fitzgerald", 1925),
-    ]
-
-    if not os.path.exists("user.csv"):
-        user_model.initialize_db()
-        for name, email in users_to_add:
-            user_model.add(name, email)
-    if not os.path.exists("book.json"):
-        book_model.initialize_db()
-        for title, author, year in books_to_add:
-            book_model.add(title, author, year)
-    if not os.path.exists("user_book.csv"):
-        user_books_model.initialize_db()
-
-        alice_id = int(user_model.get("name", "Alice Smith")[0][0])
-        bob_id = int(user_model.get("name", "Bob Jones")[0][0])
-
-        hobbit_id = int(book_model.get("title", "The Hobbit")[0]["id"])
-        foundation_id = int(book_model.get("title", "Foundation")[0]["id"])
-        brave_world_id = int(book_model.get("title", "Brave New World")[0]["id"])
-
-        user_books_model.add(alice_id, hobbit_id)
-        user_books_model.add(alice_id, hobbit_id)
-        user_books_model.add(alice_id, foundation_id)
-        user_books_model.add(bob_id, foundation_id)
-        user_books_model.add(bob_id, brave_world_id)
-
-        print(f"Books for Alice (ID {alice_id}):")
-        print(user_books_model.get_books(alice_id))
-
-        print(f"\nBooks for Bob (ID {bob_id}):")
-        print(user_books_model.get_books(bob_id))
-
-        print(user_books_model.has_read_book(bob_id, foundation_id))
-        print(user_books_model.has_read_book(bob_id, hobbit_id))
-
-        user_books_model.remove_book(bob_id, foundation_id)
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    completed: bool = False
 
 
-if __name__ == "__main__":
-    main()
+class TaskUpdate(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    completed: bool = False
+
+
+@app.get("/tasks")
+def read_all_tasks():
+    return {"tasks": task_db.list_all()}
+
+
+@app.get("/tasks/{task_id}")
+def get_task_by_id(task_id):
+    return {"tasks": task_db.get("id", task_id)}
+
+
+@app.post("/tasks")
+def add_new_task(task: TaskCreate):
+    task_db.add(task.title, task.description, task.completed)
+    return {"message": "Task created"}
+
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id, new_task: TaskUpdate):
+    task_db.update(
+        task_id,
+        {
+            "title": new_task.title,
+            "description": new_task.description,
+            "completed": new_task.completed,
+        },
+    )
+    return {"message": "Task updated"}
+
+
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: int):
+    task_db.delete("id", task_id)
+    return {"message": "Task deleted"}

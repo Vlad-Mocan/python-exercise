@@ -1,4 +1,11 @@
-from database.db import init_db, add_record, search_record, view_records, delete_record
+from database.db import (
+    init_db,
+    add_record,
+    search_record,
+    view_records,
+    update_record,
+    delete_record,
+)
 
 
 class Entity:
@@ -30,8 +37,12 @@ class Entity:
     def get(self, field: str, value: str):
         return search_record(self.filename, field, value)
 
-    def list_all(self) -> None:
-        view_records(self.filename)
+    def list_all(self) -> list:
+        return view_records(self.filename)
+
+    def update(self, record_id: str, fields: dict) -> None:
+        for field, value in fields.items():
+            update_record(self.filename, "id", record_id, field, value)
 
     def delete(self, field: str, value: str) -> None:
         delete_record(self.filename, field, value)

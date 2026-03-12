@@ -54,9 +54,7 @@ def add_csv_record(filename, record):
 
 def view_csv_records(filename):
     header, records = load_csv_file(filename)
-    print("Headers:", header)
-    for row in records:
-        print(row)
+    return records
 
 
 def search_csv_record(filename, field, value):

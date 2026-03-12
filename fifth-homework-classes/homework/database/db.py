@@ -46,9 +46,9 @@ def add_record(filename, record):
 def view_records(filename):
     ext = get_extension(filename)
     if ext == ".json":
-        view_json_records(filename)
+        return view_json_records(filename)
     elif ext == ".csv":
-        view_csv_records(filename)
+        return view_csv_records(filename)
 
 
 def search_record(filename, field, value):
